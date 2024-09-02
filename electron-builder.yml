@@ -1,0 +1,8 @@
+appId: com.example.app
+productName: My Electron App
+directories:
+  output: dist
+  buildResources: build
+files:
+  - dist/**/*
+  - package.json
