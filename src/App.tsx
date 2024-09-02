@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
-import { FaCode, FaFont, FaArrowUp, FaArrowDown } from 'react-icons/fa';
+import { FaCode, FaFont, FaArrowUp, FaArrowDown, FaCopy } from 'react-icons/fa';
 import { BiText } from 'react-icons/bi';
 import { MdTextFields } from 'react-icons/md';
+import * as caseConversion from './services/case-conversion';
+
+type ConversionFunction = (input: string) => string;
+
+interface ConversionOption {
+  name: string;
+  icon: React.ElementType;
+  function: ConversionFunction;
+  className: string;
+}
 
 const App: React.FC = () => {
   const [input, setInput] = useState('hello_world_test');
@@ -12,43 +22,47 @@ const App: React.FC = () => {
     setInput(e.target.value);
   };
 
-  const convertToCamelCase = () => {
-    const camelCase = input.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-    setOutput(camelCase);
-    setCopied(false);
-  };
+  const conversionOptions: ConversionOption[] = [
+    {
+      name: 'To Camel Case',
+      icon: FaCode,
+      function: caseConversion.toCamelCase,
+      className: 'bg-blue-500 hover:bg-blue-600'
+    },
+    {
+      name: 'To Snake Case',
+      icon: BiText,
+      function: caseConversion.toSnakeCase,
+      className: 'bg-green-500 hover:bg-green-600'
+    },
+    {
+      name: 'To Constant Case',
+      icon: FaFont,
+      function: caseConversion.toConstantCase,
+      className: 'bg-purple-500 hover:bg-purple-600'
+    },
+    {
+      name: 'To Pascal Case',
+      icon: MdTextFields,
+      function: caseConversion.toPascalCase,
+      className: 'bg-yellow-500 hover:bg-yellow-600'
+    },
+    {
+      name: 'To Uppercase',
+      icon: FaArrowUp,
+      function: caseConversion.toUpperCase,
+      className: 'bg-red-500 hover:bg-red-600'
+    },
+    {
+      name: 'To Lowercase',
+      icon: FaArrowDown,
+      function: caseConversion.toLowerCase,
+      className: 'bg-indigo-500 hover:bg-indigo-600'
+    }
+  ];
 
-  const convertToSnakeCase = () => {
-    const snakeCase = input.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-    setOutput(snakeCase.charAt(0) === '_' ? snakeCase.slice(1) : snakeCase);
-    setCopied(false);
-  };
-
-  const convertToConstantCase = () => {
-    const constantCase = input
-      .split(/(?=[A-Z])|_/)
-      .join('_')
-      .toUpperCase();
-    setOutput(constantCase);
-    setCopied(false);
-  };
-
-  const convertToPascalCase = () => {
-    const pascalCase = input
-      .toLowerCase()
-      .replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
-      .replace(/^[a-z]/, letter => letter.toUpperCase());
-    setOutput(pascalCase);
-    setCopied(false);
-  };
-
-  const convertToUpperCase = () => {
-    setOutput(input.toUpperCase());
-    setCopied(false);
-  };
-
-  const convertToLowerCase = () => {
-    setOutput(input.toLowerCase());
+  const convertCase = (conversionFunc: ConversionFunction) => {
+    setOutput(conversionFunc(input));
     setCopied(false);
   };
 
@@ -77,58 +91,36 @@ const App: React.FC = () => {
           />
         </div>
         <div className="grid grid-cols-2 gap-2 mb-4">
-          <button
-            onClick={convertToCamelCase}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors flex items-center justify-center"
-          >
-            <FaCode className="mr-2" /> To Camel Case
-          </button>
-          <button
-            onClick={convertToSnakeCase}
-            className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors flex items-center justify-center"
-          >
-            <BiText className="mr-2" /> To Snake Case
-          </button>
-          <button
-            onClick={convertToConstantCase}
-            className="bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-colors flex items-center justify-center"
-          >
-            <FaFont className="mr-2" /> To Constant Case
-          </button>
-          <button
-            onClick={convertToPascalCase}
-            className="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 transition-colors flex items-center justify-center"
-          >
-            <MdTextFields className="mr-2" /> To Pascal Case
-          </button>
-          <button
-            onClick={convertToUpperCase}
-            className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors flex items-center justify-center"
-          >
-            <FaArrowUp className="mr-2" /> To Uppercase
-          </button>
-          <button
-            onClick={convertToLowerCase}
-            className="bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-colors flex items-center justify-center"
-          >
-            <FaArrowDown className="mr-2" /> To Lowercase
-          </button>
+          {conversionOptions.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => convertCase(option.function)}
+              className={`${option.className} text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-colors flex items-center justify-center`}
+            >
+              <option.icon className="mr-2" /> {option.name}
+            </button>
+          ))}
         </div>
         {output && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-2 text-gray-700">Result:</h2>
             <div
-              className="bg-gray-100 p-3 rounded-md cursor-pointer hover:bg-gray-200 transition-colors relative"
+              className="bg-gray-100 p-3 rounded-md cursor-pointer hover:bg-gray-200 transition-colors relative group"
               onClick={copyToClipboard}
             >
-              <p className="font-mono text-gray-800">{output}</p>
+              <p className="font-mono text-gray-800 pr-8">{output}</p>
+              <div className="absolute top-2 right-2 text-gray-400 group-hover:text-gray-600">
+                <FaCopy size={18} />
+              </div>
               {copied && (
                 <span className="absolute top-0 right-0 bg-green-500 text-white text-xs px-2 py-1 rounded-bl-md rounded-tr-md">
                   Copied!
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-500 mt-2">Click to copy</p>
+            <p className="text-sm text-gray-500 mt-2 flex items-center">
+              <FaCopy size={14} className="mr-1" /> Click to copy
+            </p>
           </div>
         )}
       </div>
