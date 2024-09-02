@@ -4,7 +4,8 @@ import * as caseConversion from './services/case-conversion';
 
 type ConversionOption = {
   name: string;
-  function: (input: string) => string;
+  function: (input: string, removeIllegalChars: boolean) => string;
+  example: string;
 };
 
 const App: React.FC = () => {
@@ -16,13 +17,13 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [removeIllegalChars, setRemoveIllegalChars] = useState(true);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     convertCase(e.target.value);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
       copyToClipboard();
     }
   };
@@ -33,21 +34,25 @@ const App: React.FC = () => {
   };
 
   const conversionOptions: ConversionOption[] = [
-    { name: 'camelCase', function: caseConversion.toCamelCase },
-    { name: 'snake_case', function: caseConversion.toSnakeCase },
-    { name: 'CONSTANT_CASE', function: caseConversion.toConstantCase },
-    { name: 'PascalCase', function: caseConversion.toPascalCase },
-    { name: 'UPPERCASE', function: caseConversion.toUpperCase },
-    { name: 'lowercase', function: caseConversion.toLowerCase },
-    { name: 'kebab-case', function: caseConversion.toKebabCase },
-    { name: 'Title Case', function: caseConversion.toTitleCase },
-    { name: 'COBOL-CASE', function: caseConversion.toCobolCase },
-    { name: 'Train-Case', function: caseConversion.toTrainCase },
+    { name: 'camelCase', function: caseConversion.toCamelCase, example: 'myVariableName' },
+    { name: 'snake_case', function: caseConversion.toSnakeCase, example: 'my_variable_name' },
+    { name: 'CONSTANT_CASE', function: caseConversion.toConstantCase, example: 'MY_CONSTANT_NAME' },
+    { name: 'PascalCase', function: caseConversion.toPascalCase, example: 'MyClassName' },
+    { name: 'UPPERCASE', function: caseConversion.toUpperCase, example: 'MY UPPERCASE TEXT' },
+    { name: 'lowercase', function: caseConversion.toLowerCase, example: 'my lowercase text' },
+    { name: 'kebab-case', function: caseConversion.toKebabCase, example: 'my-kebab-case' },
+    { name: 'Title Case', function: caseConversion.toTitleCase, example: 'My Title Case' },
+    { name: 'COBOL-CASE', function: caseConversion.toCobolCase, example: 'MY-COBOL-CASE' },
+    { name: 'Train-Case', function: caseConversion.toTrainCase, example: 'My-Train-Case' },
   ];
 
   const convertCase = (text: string = input) => {
     if (selectedOption !== -1) {
-      const newOutput = conversionOptions[selectedOption].function(text, removeIllegalChars);
+      const lines = text.split('\n');
+      const convertedLines = lines.map(line =>
+        conversionOptions[selectedOption].function(line, removeIllegalChars)
+      );
+      const newOutput = convertedLines.join('\n');
       setOutput(newOutput);
       setCopied(false);
       if (autoCopy) {
@@ -74,8 +79,9 @@ const App: React.FC = () => {
       <div className="flex">
         <div className="card bg-base-100 shadow-xl w-full max-w-md">
           <div className="card-body">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-2">
               <h1 className="card-title text-2xl font-bold">Case Converter</h1>
+              <div className="badge badge-neutral">{conversionOptions[selectedOption].name}</div>
               <button
                 className="btn btn-circle btn-ghost"
                 onClick={() => setShowSettings(!showSettings)}
@@ -88,17 +94,16 @@ const App: React.FC = () => {
                 <span className="label-text">Enter Text:</span>
               </label>
               <div className="relative">
-                <input
-                  type="text"
+                <textarea
                   value={input}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
-                  className="input input-bordered w-full pr-10"
+                  className="textarea textarea-bordered w-full h-32 pr-10"
                   placeholder="e.g. hello_world, helloWorld, or HelloWorld"
                 />
                 {input && (
                   <button
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
                     onClick={clearInput}
                   >
                     <FaTimes />
@@ -109,14 +114,14 @@ const App: React.FC = () => {
             <div className="mt-6">
               <h2 className="text-lg font-semibold mb-2">Result:</h2>
               <div
-                className={`bg-base-200 p-3 rounded-box relative min-h-[40px] ${output ? 'cursor-pointer hover:bg-base-300' : ''}`}
+                className={`bg-base-200 p-3 rounded-box relative h-32 overflow-auto ${output ? 'cursor-pointer hover:bg-base-300' : ''}`}
                 onClick={() => !autoCopy && copyToClipboard()}
               >
                 {output ? (
                   <>
-                    <p className="font-mono pr-8">{output}</p>
+                    <pre className="font-mono whitespace-pre-wrap break-words pr-8 h-full">{output}</pre>
                     {!autoCopy && (
-                      <div className="absolute top-1/2 right-2 transform -translate-y-1/2 text-base-content opacity-50 hover:opacity-100">
+                      <div className="absolute top-2 right-2 text-base-content opacity-50 hover:opacity-100">
                         <FaCopy size={18} />
                       </div>
                     )}
@@ -144,7 +149,7 @@ const App: React.FC = () => {
                   <span className="label-text">Auto-copy result</span>
                   <input
                     type="checkbox"
-                    className="checkbox checkbox-primary"
+                    className="checkbox checkbox-primary toggle"
                     checked={autoCopy}
                     onChange={(e) => setAutoCopy(e.target.checked)}
                   />
@@ -155,7 +160,7 @@ const App: React.FC = () => {
                   <span className="label-text">Remove illegal characters</span>
                   <input
                     type="checkbox"
-                    className="checkbox checkbox-primary"
+                    className="checkbox checkbox-primary toggle"
                     checked={removeIllegalChars}
                     onChange={(e) => setRemoveIllegalChars(e.target.checked)}
                   />
@@ -175,7 +180,9 @@ const App: React.FC = () => {
                         checked={selectedOption === index}
                         onChange={() => setSelectedOption(index)}
                       />
-                      <span>{option.name}</span>
+                      <span className="tooltip" data-tip={`Example: ${option.example}`}>
+                        {option.name}
+                      </span>
                     </label>
                   ))}
                 </div>

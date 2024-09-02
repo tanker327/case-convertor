@@ -1,5 +1,5 @@
-// Helper function to normalize the input string
-const normalizeString = (str: string, removeIllegalChars: boolean): string => {
+// Helper function to normalize a single line
+const normalizeLine = (str: string, removeIllegalChars: boolean): string => {
   let normalized = str
     .replace(/([a-z])([A-Z])/g, '$1 $2')  // Split camelCase
     .replace(/[\s_-]+/g, ' ')             // Replace separators with spaces
@@ -14,7 +14,10 @@ const normalizeString = (str: string, removeIllegalChars: boolean): string => {
 };
 
 const applyCase = (str: string, removeIllegalChars: boolean, caseFunction: (s: string) => string): string => {
-  return caseFunction(normalizeString(str, removeIllegalChars));
+  return str.split('\n').map(line => {
+    const normalizedLine = normalizeLine(line, removeIllegalChars);
+    return normalizedLine ? caseFunction(normalizedLine) : '';
+  }).join('\n');
 };
 
 export const toCamelCase = (str: string, removeIllegalChars: boolean = true): string => 
