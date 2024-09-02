@@ -1,17 +1,48 @@
-export const toCamelCase = (str: string): string => 
-  str.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+// Helper function to normalize the input string
+const normalizeString = (str: string, removeIllegalChars: boolean): string => {
+  let normalized = str
+    .replace(/([a-z])([A-Z])/g, '$1 $2')  // Split camelCase
+    .replace(/[\s_-]+/g, ' ')             // Replace separators with spaces
+    .trim()                               // Trim leading/trailing spaces
+    .toLowerCase();                       // Convert to lowercase
 
-export const toSnakeCase = (str: string): string => {
-  const snakeCase = str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-  return snakeCase.charAt(0) === '_' ? snakeCase.slice(1) : snakeCase;
+  if (removeIllegalChars) {
+    normalized = normalized.replace(/[^a-z0-9\s]/g, '');
+  }
+
+  return normalized;
 };
 
-export const toConstantCase = (str: string): string => 
-  str.split(/(?=[A-Z])|_/).join('_').toUpperCase();
+const applyCase = (str: string, removeIllegalChars: boolean, caseFunction: (s: string) => string): string => {
+  return caseFunction(normalizeString(str, removeIllegalChars));
+};
 
-export const toPascalCase = (str: string): string => 
-  str.toLowerCase().replace(/(^|_)([a-z])/g, (_, __, letter) => letter.toUpperCase());
+export const toCamelCase = (str: string, removeIllegalChars: boolean = true): string => 
+  applyCase(str, removeIllegalChars, s => s.replace(/\s(.)/g, (_, char) => char.toUpperCase()));
 
-export const toUpperCase = (str: string): string => str.toUpperCase();
+export const toSnakeCase = (str: string, removeIllegalChars: boolean = true): string =>
+  applyCase(str, removeIllegalChars, s => s.replace(/\s/g, '_'));
 
-export const toLowerCase = (str: string): string => str.toLowerCase();
+export const toConstantCase = (str: string, removeIllegalChars: boolean = true): string => 
+  applyCase(str, removeIllegalChars, s => s.replace(/\s/g, '_').toUpperCase());
+
+export const toPascalCase = (str: string, removeIllegalChars: boolean = true): string => 
+  applyCase(str, removeIllegalChars, s => s.replace(/(?:^|\s)(.)/g, (_, char) => char.toUpperCase()).replace(/\s/g, ''));
+
+export const toUpperCase = (str: string, removeIllegalChars: boolean = true): string => 
+  applyCase(str, removeIllegalChars, s => s.toUpperCase());
+
+export const toLowerCase = (str: string, removeIllegalChars: boolean = true): string => 
+  applyCase(str, removeIllegalChars, s => s.toLowerCase());
+
+export const toKebabCase = (str: string, removeIllegalChars: boolean = true): string =>
+  applyCase(str, removeIllegalChars, s => s.replace(/\s/g, '-'));
+
+export const toTitleCase = (str: string, removeIllegalChars: boolean = true): string =>
+  applyCase(str, removeIllegalChars, s => s.replace(/(?:^|\s)(.)/g, (_, char) => char.toUpperCase()));
+
+export const toCobolCase = (str: string, removeIllegalChars: boolean = true): string =>
+  applyCase(str, removeIllegalChars, s => s.replace(/\s/g, '-').toUpperCase());
+
+export const toTrainCase = (str: string, removeIllegalChars: boolean = true): string =>
+  applyCase(str, removeIllegalChars, s => s.replace(/(?:^|\s)(.)/g, (_, char) => char.toUpperCase()).replace(/\s/g, '-'));

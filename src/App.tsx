@@ -14,9 +14,17 @@ const App: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<number>(0);
   const [autoCopy, setAutoCopy] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [removeIllegalChars, setRemoveIllegalChars] = useState(true);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
+    convertCase(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      copyToClipboard();
+    }
   };
 
   const clearInput = () => {
@@ -25,17 +33,21 @@ const App: React.FC = () => {
   };
 
   const conversionOptions: ConversionOption[] = [
-    { name: 'Camel Case', function: caseConversion.toCamelCase },
-    { name: 'Snake Case', function: caseConversion.toSnakeCase },
-    { name: 'Constant Case', function: caseConversion.toConstantCase },
-    { name: 'Pascal Case', function: caseConversion.toPascalCase },
-    { name: 'Uppercase', function: caseConversion.toUpperCase },
-    { name: 'Lowercase', function: caseConversion.toLowerCase },
+    { name: 'camelCase', function: caseConversion.toCamelCase },
+    { name: 'snake_case', function: caseConversion.toSnakeCase },
+    { name: 'CONSTANT_CASE', function: caseConversion.toConstantCase },
+    { name: 'PascalCase', function: caseConversion.toPascalCase },
+    { name: 'UPPERCASE', function: caseConversion.toUpperCase },
+    { name: 'lowercase', function: caseConversion.toLowerCase },
+    { name: 'kebab-case', function: caseConversion.toKebabCase },
+    { name: 'Title Case', function: caseConversion.toTitleCase },
+    { name: 'COBOL-CASE', function: caseConversion.toCobolCase },
+    { name: 'Train-Case', function: caseConversion.toTrainCase },
   ];
 
-  const convertCase = () => {
+  const convertCase = (text: string = input) => {
     if (selectedOption !== -1) {
-      const newOutput = conversionOptions[selectedOption].function(input);
+      const newOutput = conversionOptions[selectedOption].function(text, removeIllegalChars);
       setOutput(newOutput);
       setCopied(false);
       if (autoCopy) {
@@ -55,7 +67,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     convertCase();
-  }, [selectedOption]);
+  }, [selectedOption, removeIllegalChars]);
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
@@ -80,6 +92,7 @@ const App: React.FC = () => {
                   type="text"
                   value={input}
                   onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
                   className="input input-bordered w-full pr-10"
                   placeholder="e.g. hello_world, helloWorld, or HelloWorld"
                 />
@@ -93,12 +106,6 @@ const App: React.FC = () => {
                 )}
               </div>
             </div>
-            <button
-              onClick={convertCase}
-              className="btn btn-primary w-full mt-4"
-            >
-              Convert
-            </button>
             <div className="mt-6">
               <h2 className="text-lg font-semibold mb-2">Result:</h2>
               <div
@@ -137,9 +144,20 @@ const App: React.FC = () => {
                   <span className="label-text">Auto-copy result</span>
                   <input
                     type="checkbox"
-                    className="toggle toggle-primary"
+                    className="checkbox checkbox-primary"
                     checked={autoCopy}
                     onChange={(e) => setAutoCopy(e.target.checked)}
+                  />
+                </label>
+              </div>
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Remove illegal characters</span>
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                    checked={removeIllegalChars}
+                    onChange={(e) => setRemoveIllegalChars(e.target.checked)}
                   />
                 </label>
               </div>
