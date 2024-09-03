@@ -75,9 +75,9 @@ const App: React.FC = () => {
   }, [selectedOption, removeIllegalChars]);
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center p-4">
-      <div className="flex">
-        <div className="card bg-base-100 shadow-xl w-full max-w-md">
+    <div className="min-h-screen bg-base-200 flex">
+      <div className="flex-grow flex items-center justify-center p-4">
+        <div className="card bg-base-100 shadow-xl w-full ">
           <div className="card-body">
             <div className="flex justify-between items-center mb-2">
               <h1 className="card-title text-2xl font-bold">Case Converter</h1>
@@ -140,57 +140,57 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        {showSettings && (
-          <div className="card bg-base-100 shadow-xl w-96 ml-4">
-            <div className="card-body">
-              <h2 className="card-title text-xl font-bold mb-4">Settings</h2>
-              <div className="form-control">
-                <label className="label cursor-pointer">
-                  <span className="label-text">Auto-copy result</span>
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary toggle"
-                    checked={autoCopy}
-                    onChange={(e) => setAutoCopy(e.target.checked)}
-                  />
-                </label>
-              </div>
-              <div className="form-control">
-                <label className="label cursor-pointer">
-                  <span className="label-text">Remove illegal characters</span>
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary toggle"
-                    checked={removeIllegalChars}
-                    onChange={(e) => setRemoveIllegalChars(e.target.checked)}
-                  />
-                </label>
-              </div>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Case Conversion:</span>
-                </label>
-                <div className="flex flex-col space-y-2">
-                  {conversionOptions.map((option, index) => (
-                    <label key={index} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        className="radio radio-primary"
-                        name="caseConversion"
-                        checked={selectedOption === index}
-                        onChange={() => setSelectedOption(index)}
-                      />
-                      <span className="tooltip" data-tip={`Example: ${option.example}`}>
-                        {option.name}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+      </div>
+      {showSettings && (
+        <div className="w-64 bg-base-100 shadow-xl overflow-y-auto">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-4">Settings</h2>
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text">Auto-copy result</span>
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary toggle"
+                  checked={autoCopy}
+                  onChange={(e) => setAutoCopy(e.target.checked)}
+                />
+              </label>
+            </div>
+            <div className="form-control">
+              <label className="label cursor-pointer">
+                <span className="label-text">Remove illegal characters</span>
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary toggle"
+                  checked={removeIllegalChars}
+                  onChange={(e) => setRemoveIllegalChars(e.target.checked)}
+                />
+              </label>
+            </div>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Case Conversion:</span>
+              </label>
+              <div className="flex flex-col space-y-2">
+                {conversionOptions.map((option, index) => (
+                  <label key={index} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      className="radio radio-primary"
+                      name="caseConversion"
+                      checked={selectedOption === index}
+                      onChange={() => setSelectedOption(index)}
+                    />
+                    <span className="tooltip" data-tip={`Example: ${option.example}`}>
+                      {option.name}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

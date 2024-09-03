@@ -5,11 +5,18 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    resizable: false,
+    fullscreenable: false,
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     }
   });
+
+  // Set a custom property for settings width
+  win.webContents.executeJavaScript(`
+    window.SETTINGS_WIDTH = 200; // Set your desired fixed width here
+  `);
 
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:5173');

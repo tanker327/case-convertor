@@ -1,8 +1,12 @@
-appId: com.example.app
-productName: My Electron App
+appId: com.loopdoop.case-converter
+productName: Case Converter
 directories:
   output: dist
   buildResources: build
 files:
   - dist/**/*
   - package.json
+mac:
+  target:
+    - dmg
+    - zip

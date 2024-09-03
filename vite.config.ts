@@ -9,6 +9,9 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: '.',
     emptyOutDir: true,
+    rollupOptions: {
+      external: ['electron']
+    }
   },
   server: {
     strictPort: true,
